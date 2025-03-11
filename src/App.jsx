@@ -1,19 +1,18 @@
-
-import { useState,useEffect, useRef } from "react"
-import Note from "./Note";
+import { useState,useEffect, useRef } from 'react'
+import Note from './components/Note'
 import noteServices from './services/notes'
-import Notification from "./Notification";
-import Footer from "./Footer";
-import loginService from "./services/login"
-import LoginForm from "./LoginForm";
-import NoteForm from "./NoteForm";
-import Togglable from "./Togglable";
+import Notification from './components/Notification'
+import Footer from './components/Footer'
+import loginService from './services/login'
+import LoginForm from './components/LoginForm'
+import NoteForm from './components/NoteForm'
+import Togglable from './components/Togglable'
 
 
 const App = () => {
-  
+
   const noteFormRef = useRef()
-  const [notes,setNotes] = useState([]);
+  const [notes,setNotes] = useState([])
   const [showAll,setShowAll] = useState(true)
   const [errorMessage,setErrorMessage] = useState(null)
   const [user,setUser] = useState(null)
@@ -22,12 +21,11 @@ const App = () => {
     console.log('effect')
 
     noteServices
-    .getAll()
-    .then(initialNotes => {
-      console.log('promise fullfilled')
-      setNotes(initialNotes);
-    })
-    
+      .getAll()
+      .then(initialNotes => {
+        console.log('promise fullfilled')
+        setNotes(initialNotes)
+      })
   },[])
 
   useEffect(() => {
@@ -47,53 +45,51 @@ const App = () => {
       const returnedNote = await noteServices.create(noteObject)
       noteFormRef.current.toggleVisiblity()
       console.log(returnedNote)
-      setNotes(notes.concat(returnedNote));
+      setNotes(notes.concat(returnedNote))
     } catch(error) {
       console.error('Error while Adding new Note',error)
     }
 
   }
 
-  const showNotes = showAll ? notes : notes.filter(note => note.important);
+  const showNotes = showAll ? notes : notes.filter(note => note.important)
 
 
   const handleClick = () => {
-    setShowAll(!showAll);
+    setShowAll(!showAll)
   }
 
   const toggleNoteImportance = (id) => {
     console.log(`Note id ${id} is Clicked`)
 
-    const note = notes.find(note => note.id == id)
+    const note = notes.find(note => note.id === id)
     const changedNote = {...note,important:!note.important}
-    
     noteServices
-    .update(id,changedNote)
-    .then(returnedNote => {
-      console.log(returnedNote)
-      setNotes(notes.map(n => n.id === id ? returnedNote : n))
-    })
-    .catch(() => {
-      setErrorMessage(
-        `the content with content ${note.content} is deleted from server `
-      )
-      setTimeout(() => {
-        setErrorMessage(null)
-      },8000)
+      .update(id,changedNote)
+      .then(returnedNote => {
+        console.log(returnedNote)
+        setNotes(notes.map(n => n.id === id ? returnedNote : n))
+      })
+      .catch(() => {
+        setErrorMessage(
+          `the content with content ${note.content} is deleted from server `
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        },8000)
 
-      setNotes(notes.filter(note => note.id !== id))
-    })
+        setNotes(notes.filter(note => note.id !== id))
+      })
   }
 
   const handleLoginSubmit = async (userObject) => {
-    
     console.log(`username : ${userObject.username} password : ${userObject.password}`)
 
     try {
       const user = await loginService.login(userObject)
       window.localStorage.setItem('loggedNoteappUser',JSON.stringify(user))
       noteServices.setToken(user.token)
-      setUser(user) 
+      setUser(user)
       setErrorMessage('Login Succesfull')
       setTimeout(() => setErrorMessage(null),5000)
     } catch (exception) {
@@ -111,34 +107,31 @@ const App = () => {
     setTimeout(() => setErrorMessage(null),5000)
   }
 
-  
   return (
     <div>
       <div>
         <h1>Notes</h1>
         <Notification message={errorMessage} />
 
-        {user === null 
-        ? <Togglable buttonLabel="login" >
+        {user === null
+          ? <Togglable buttonLabel="login" >
             <LoginForm loginUser={handleLoginSubmit} />
-          </Togglable> 
-        : <div>
+          </Togglable>
+          : <div>
             <div>
-              {user.username} logged-in
+              <p>{user.username} logged-in</p>
               <button onClick={handleLogout}>logout</button>
             </div>
             <Togglable buttonLabel="new note" ref={noteFormRef}>
-             <NoteForm createNote={addNote} />
+              <NoteForm createNote={addNote} />
             </Togglable>
-          </div> 
-        
+          </div>
         }
 
         <button onClick={handleClick}>show {showAll ? 'important' : 'all'}</button>
         <ul>
           {showNotes.map((note) => <li key={note.id}>{note.content}</li>)}
         </ul>
-        
       </div>
       <div>
         <ul>
@@ -149,6 +142,5 @@ const App = () => {
     </div>
   )
 }
-
 
 export default App

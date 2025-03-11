@@ -4,20 +4,38 @@ import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
+// Combine Vitest globals if needed (assuming you have an appropriate package)
+// const vitestGlobals = { ...globals.browser, ...{ 'vitest-globals/env': true} }
+
 export default [
-  { ignores: ['dist'] },
+  // Ignored files
   {
+    ignores: [
+      'dist/',
+      'node_modules/',
+      'vite.config.js',
+    ],
+  },
+  {
+    // Apply to JavaScript and JSX files
     files: ['**/*.{js,jsx}'],
+    env: {
+      vitest: true,
+    },
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
-        sourceType: 'module',
       },
+      globals: {
+        ...globals.browser,
+      }
     },
-    settings: { react: { version: '18.3' } },
+    settings: {
+      react: { version: '18.3' } // Adjust to your React version
+    },
     plugins: {
       react,
       'react-hooks': reactHooks,
@@ -28,12 +46,23 @@ export default [
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
-      'react/jsx-no-target-blank': 'off',
+      // Custom rules from your .eslintrc.cjs
+      'indent': ['error', 2],
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'never'],
+      'eqeqeq': 'error',
+      'no-trailing-spaces': 'error',
+      'arrow-spacing': ['error', { before: true, after: true }],
+      'no-console': 0,
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      // Additional custom rule for react-refresh
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true },
+        { allowConstantExport: true }
       ],
-      'react/prop-types': 0,
+      // Disable target blank warning if desired
+      'react/jsx-no-target-blank': 'off',
     },
   },
 ]
